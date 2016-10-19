@@ -35,30 +35,47 @@ class DragonModel(object):
 			urllib.urlretrieve(url, filename)
 
 		with open(filename, "rU") as a_file:
+
+			# READ Header
 			while True:
 				a_string = a_file.readline()
-				if len(a_string) == 0: break
+				if len(a_string) == 0: break#空文字ならループ抜け
 				a_list = a_string.split()
-				if len(a_list) == 0: continue
+				if len(a_list) == 0: continue#リスト長が0ならパスする
 				first_string = a_list[0]
-				# if first_string == "number_of_vertexes":
-				#	number_of_vertexes = int(a_list[1])
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
-				#
+				
+				
+				if first_string == "end_header":
+					break
+				elif first_string == "number_of_vertexes":
+					number_of_vertexes = int(a_list[1])
+				elif first_string == "number_of_triangles":
+					number_of_triangles = int(a_list[1])
+				
+
+			#READ Vertexes
+			vertexes = []
+
+			for x in xrange(number_of_vertexes):
+				#1行ずつ文字列リストをfloatに変換してvertexesリストに入れる
+				a_vertex = map(float, a_file.readline().split()[0:3])
+				vertexes.append(a_vertex)
+
+
+			triangles = []
+			#READ Triangles Index
+			for x in xrange(number_of_triangles):
+				#1行ずつ文字列リストをintに変換してvertexesリストに入れる
+				a_triangle = map(int, a_file.readline().split()[0:3])
+				triangles.append(a_triangle)
+
+
+			#TRANSFORM (Triangles Index List -> A Vertex List)
+			#vertexesのインデックスは0から、triangleの表記は1からなので整合性をとる
+			for a_triangle in triangles:
+				vx, vy, vz = map(lambda index: vertexes[index-1], a_triangle)
+				#REGIST
+				self._triangles.append(DragonTriangle(vx, vy, vz))
 
 		return
 
@@ -233,6 +250,7 @@ class DragonController(object):
 			self._view._angle_x = 0.0
 			self._view._angle_y = 0.0
 			self._view._angle_z = 0.0
+			self._model._fovy = self._model._default_fovy
 		if key == 'x':
 			self._view._angle_x += 1.0
 		if key == 'y':
@@ -245,6 +263,10 @@ class DragonController(object):
 			self._view._angle_y -= 1.0
 		if key == 'Z':
 			self._view._angle_z -= 1.0
+		if key == 's':
+			self._model._fovy += 1.0
+		if key == 'S':
+			self._model._fovy -= 1.0
 
 		glutPostRedisplay()
 
