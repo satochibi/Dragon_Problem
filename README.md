@@ -1,0 +1,1 @@
+Blueprintにastahの設計図が入ってます
